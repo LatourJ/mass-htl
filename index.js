@@ -57,7 +57,7 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 	console.log('Start compiling HTL files: \n\r  ' + templatesFilePaths.join('\n\r  '));
 
 	/** compile found html files **/
-	const compiler = new Compiler().includeRuntime(true);
+	const compiler = new Compiler().includeRuntime(true).withRuntimeVar('wcmmode');
 
 	var templatesToCompile = [];
 	function next() {
@@ -76,25 +76,18 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 
 			var result = compiler.compileToString(templateFile);
 			try {
-				eval(result);
-				module.exports.main({}).then(function(result){handleResult(result, filePath, lastTime)}, handleError);
-			}
-			catch(e) {
-				console.error('An error occurred while compiling ' + filePath);
-				let failedTemplate = targetDir + '/failed.js';
-				fs.writeFile(failedTemplate, result, 'utf8', function(errors) {
+				let currentTemplateFilePath = filePath + '.js';
+				fs.writeFile(currentTemplateFilePath, result, 'utf8', function(errors) {
 					if (errors) {
 						console.error(errors);
-					}
-
-					var faultyTemplate = require(failedTemplate);
-					try {
-						faultyTemplate.run({});
-					} catch(e) {
-						console.error(e);
+					} else {
+						let currentTemplate = require(currentTemplateFilePath);
+						let result = currentTemplate.main({'wcmmode':true}).then(function(result){handleResult(result, filePath, lastTime)}, handleError);
 					}
 				});
-
+			}
+			catch(e) {
+				console.error('An error occurred while compiling ' + filePath, e);
 			}
 		} else {
 			done();
