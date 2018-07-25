@@ -1,0 +1,24 @@
+{
+  "name": "mass-htl",
+  "version": "0.1.0",
+  "description": "A wrapper npm module using @adobe/htlengine to parse multiple HTL files from a directory and copy the results to a target directory",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LatourJ/mass-htl.git"
+  },
+  "keywords": [
+    "htl",
+    "adobe",
+    "aem"
+  ],
+  "author": "Jaap Latour",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LatourJ/mass-htl/issues"
+  },
+  "homepage": "https://github.com/LatourJ/mass-htl#readme"
+}
