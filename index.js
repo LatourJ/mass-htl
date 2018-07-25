@@ -16,9 +16,7 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 
 	const ATTRIBUTE_DELAYED_RESOURCE = 'data-delayed-sly-resource'; //gets converted to data-sly-resource AFTER the initial parsing
 
-	//let sourceDir = global.process.argv[2];
 	sourceDir = path.isAbsolute(sourceDir) ? sourceDir : path.resolve(sourceDir);
-	//let targetDir = global.process.argv[3];
 	targetDir = path.isAbsolute(targetDir) ? targetDir : path.resolve(targetDir);
 	console.log('Compiling contents of ' + sourceDir + ' to ' + targetDir);
 	console.log('...from ' + originalDir);
@@ -133,7 +131,6 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 		let parts = relativePath.split(path.sep);
 		for (var i = 0; i < parts.length; i++) {
 			partialPath = path.join(partialPath, parts[i]);
-			//console.log(path.resolve(partialPath), path.relative(originalDir, path.resolve(partialPath)));
 			if (!fs.existsSync(partialPath)) {
 				let dirPath = path.relative(originalDir, partialPath);
 				fs.mkdirSync(dirPath);
