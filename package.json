@@ -1,6 +1,6 @@
 {
   "name": "mass-htl",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A wrapper npm module using @adobe/htlengine to parse multiple HTL files from a directory and copy the results to a target directory",
   "main": "index.js",
   "scripts": {
