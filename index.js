@@ -45,6 +45,7 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 //attain all html files, filter them to exclude html files that do not have a htlmock directory in the same directory as the html file.
 	let unfilteredHtmlFiles = findFilesInDir(sourceDir, '.html');
 	let templatesFilePaths = [];
+	let totalCompiled = 0;
 	for (var index = 0; index < unfilteredHtmlFiles.length; index++) {
 		let filePath = unfilteredHtmlFiles[index];
 		let mockPath = path.dirname(filePath) + '/htlmock';
@@ -70,17 +71,18 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 			 * The next time it will get compiled, we change data-slyresource into data-sly-resource and include the targeted component
 			 */
 			templateFile = templateFile.replace(ATTRIBUTE_DELAYED_RESOURCE, 'data-sly-resource');
+			templateFile = templateFile.replace(/data-sly-include="([^\/]+)"/, '><div '+ATTRIBUTE_DELAYED_RESOURCE+'="'+path.dirname(filePath)+'/$1.html"></div><sly></sly');
 			templateFile = templateFile.replace(/data-sly-include="(.*\/(.*))"/, '><div '+ATTRIBUTE_DELAYED_RESOURCE+'="'+targetDir+'$1/$2.html"></div><sly></sly');
 
 			var result = compiler.compileToString(templateFile);
 			try {
-				let currentTemplateFilePath = filePath + '.js';
+				let currentTemplateFilePath = filePath + '.' + (totalCompiled++) + '.js';
 				fs.writeFile(currentTemplateFilePath, result, 'utf8', function(errors) {
 					if (errors) {
 						console.error(errors);
 					} else {
 						let currentTemplate = require(currentTemplateFilePath);
-						let result = currentTemplate.main({'wcmmode':true}).then(function(result){handleResult(result, filePath, lastTime)}, handleError);
+						let result = currentTemplate.main({'wcmmode':false}).then(function(result){handleResult(result, filePath, lastTime)}, handleError);
 					}
 				});
 			}
@@ -100,7 +102,6 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 				console.error('write errors: ', errors);
 			}
 			console.log(targetFilePath + '... ' + (Date.now() - lastTime) + 'ms');
-
 			//if we find a delayed resource, add this file to the toCompile queue so it can load the resource after the initial parsing
 			if (contents.indexOf(ATTRIBUTE_DELAYED_RESOURCE) !== -1) {
 				templatesToCompile.push(targetFilePath);

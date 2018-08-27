@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/LatourJ/mass-htl/issues"
   },
-  "homepage": "https://github.com/LatourJ/mass-htl#readme"
+  "homepage": "https://github.com/LatourJ/mass-htl#readme",
+  "dependencies": {
+    "@adobe/htlengine": "^1.0.2-SNAPSHOT.68"
+  }
 }
