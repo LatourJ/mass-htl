@@ -53,5 +53,5 @@ It will contain:
 
 <div>Banana</div>
 
-Note: If you want to be able to use data-sly-include, you will have to target the jcr_root/apps/ aem folder.
+Note: If you want to be able to use data-sly-include, you will have to target either the jcr_root/apps/ aem folder or the same folder as the component.
 You can only use data-sly-include on components that exist in the same module.
