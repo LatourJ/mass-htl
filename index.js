@@ -60,7 +60,8 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 	console.log('Start compiling HTL files: \n\r  ' + templatesFilePaths.join('\n\r  '));
 
 	/** compile found html files **/
-	var templatesToCompile = [];
+	let templatesToCompile = [];
+	let filesCompiledCount = 0;
 	function next() {
 		if (templatesToCompile.length > 0) {
 			var lastTime = Date.now();
@@ -69,19 +70,30 @@ module.exports = function (sourceDir, targetDir, doneCallback) {
 			process.chdir(mockPath);
 			let templateFile = fs.readFileSync(filePath, "utf8");
 
+			let mockData = readMockData(mockPath);
+
 			/* We manipulate data-sly-include into data-sly-resource until Adobe creates include support.
 			 * First we rename it to data-slyresource and provide an absolute path, it later on gets added to the toCompile queue
 			 * The next time it will get compiled, we change data-slyresource into data-sly-resource and include the targeted component
 			 */
 			templateFile = templateFile.replace(ATTRIBUTE_DELAYED_RESOURCE, 'data-sly-resource');
 			templateFile = replaceAll(templateFile, /data-sly-include="([^\/]+)"/, '><div '+ATTRIBUTE_DELAYED_RESOURCE+'="'+path.dirname(filePath)+'/$1"></div></sly><sly');
-			templateFile = templateFile.replace(/data-sly-include="(.*\/(.*))"/, '><div '+ATTRIBUTE_DELAYED_RESOURCE+'="'+targetDir+'$1/$2.html"></div></sly><sly');
+			templateFile = templateFile.replace(/data-sly-include="(.*\/(.*))"/, '><div '+ATTRIBUTE_DELAYED_RESOURCE+'="'+targetDir+'/$1"></div></sly><sly');
+			/* We restructure data-sly-resource=${@path=foo, resourceType=bar} into (and consider resourceType) data-sly-resource=full/path/to/bar
+			 * or substitute the mocked value until there is proper support for resourceType
+			 */
+			templateFile = replaceAll(templateFile, /data-sly-resource="\${.*resourceType='(.+\/(.+))'}"/, function(match, p1, p2) {
+				if (mockData[p1] != null) {
+					return 'data-sly-resource="' + mockData[p1] + '"';
+				} else {
+					return 'data-sly-resource="'+targetDir + p1 + '/' + p2 + '.html"'
+				}
+			});
 
-			let mockData = readMockData(mockPath);
 			var test = {properties:{}, wcmmode:{}, pageProperties:{}}
 			var result = new Compiler().includeRuntime(true).withRuntimeVar(Object.keys(test)).compileToString(templateFile);
 			try {
-				let currentTemplateFilePath = path.dirname(filePath) + '/htlmock/' + path.basename(filePath) + '.js';
+				let currentTemplateFilePath = path.dirname(filePath) + '/htlmock/' + path.basename(filePath) + '.' + (filesCompiledCount++);
 				fs.writeFile(currentTemplateFilePath, result, 'utf8', function(errors) {
 					if (errors) {
 						console.error(errors);

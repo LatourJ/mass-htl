@@ -53,5 +53,21 @@ It will contain:
 
 <div>Banana</div>
 
+Mocking global objects/data:
+When you create a file called mock.json inside your /htlmock folders, mass-htl will read the json contents of the file and add the objects to the 
+global scope when compiling the htl files.
+Example contents of mock.json:
+{
+	"properties": {
+		"jcr:title": "My page title"
+	}
+}
+You can also use the contents of this file to point data-sly-resource nodes that utilize resourceType to the supplied file
+Example:
+{
+	"apps/myapp/components/title": "mocktitle.html"
+}
+The above will result in all nodes that containe data-sly-resource="@resourceType=/apps/myapp/components/title" to point to "mocktitle.html" instead.
+
 Note: If you want to be able to use data-sly-include, you will have to target either the jcr_root/apps/ aem folder or the same folder as the component.
 You can only use data-sly-include on components that exist in the same module.
